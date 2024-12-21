@@ -4,7 +4,7 @@ import json
 import re
 
 def shortname(namespace, name):
-    return re.sub("^" + namespace +"/", "", name)
+    return re.sub("^" + namespace + "/", "", name)
 
 def create_connections(db, nodes):
     connections = {}
@@ -32,7 +32,7 @@ def lookup_name_from_id(db, nid):
     rows = db.execute(f"SELECT name FROM dz_nodes WHERE id == {nid}")
     name = None
     for row in rows:
-        name = row
+        name = row[0]
     return name
 
 def generate_node_data(nodes, connections, path, db, nid):
@@ -68,6 +68,70 @@ def generate_node_data(nodes, connections, path, db, nid):
 
     return node, children
 
+def get_top_nodes(nodes, connections):
+    top_nodes = []
+    def any_local_nodes(receiving_nodes):
+        for nid in receiving_nodes:
+            if nid in nodes:
+                return True
+        return False
+
+    for nid in nodes:
+        if nid not in connections or any_local_nodes(connections[nid]) == False:
+            top_nodes.append(nid)
+    
+    return top_nodes
+
+def get_children(connections, nid):
+    children = []
+    for left, rcons in connections.items():
+        for right in rcons:
+            if right == nid:
+                children.append(left)
+    return children
+def childtree(nodes, connections, namespace, nid, db, xnodes):
+    tree = []
+    tree_nodes = []
+
+    external_node = False
+    node_name = None
+    if nid not in nodes:
+        external_node = True
+        xnode_name = lookup_name_from_id(db, nid)
+        assert(xnode_name is not None)
+        xnodes[xnode_name] = nid
+        node_name = xnode_name
+
+    if external_node == False:
+        node_name = shortname(namespace, nodes[nid])
+
+    children = get_children(connections, nid)
+    tree.append(node_name)
+
+    for child in children:
+        append_tree(tree_nodes, nodes, connections, namespace, child, db, xnodes)
+    
+    if len(tree_nodes) == 0:
+        tree = tree[0]
+    else:
+        tree.append(tree_nodes)
+    return tree
+
+def append_tree(tree, nodes, connections, namespace, nid, db, xnodes):
+    newtree = childtree(nodes, connections, namespace, nid, db, xnodes)
+    tree.append(newtree)
+
+def generate_tree(nodes, connections, namespace, db):
+    tree = []
+    xnodes = {}
+
+    top_nodes = get_top_nodes(nodes, connections)
+
+    for top in top_nodes:
+        append_tree(tree, nodes, connections, namespace, top, db, xnodes)
+
+    return tree, xnodes
+
 def node_object(db, path, nodes, subgraphs):
     obj = {}
     traversed = set()
@@ -100,9 +164,10 @@ def node_object(db, path, nodes, subgraphs):
                 traverse_children(children_nids)                
 
 
+    tree, xnodes = generate_tree(nodes, connections, path, db)
     obj["nodes"] = nodelist
     obj["namespace"] = path
-    obj["tree"] = []
+    obj["tree"] = tree
     obj["remarks"] = []
     obj["subgraphs"] = subgraphs
     return obj

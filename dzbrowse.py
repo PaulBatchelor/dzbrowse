@@ -151,6 +151,7 @@ def render_url(namespace):
 def generate_page(path, data_keys, data_content):
     data_content.seek(data_keys[path][0])
     blob = json.loads(data_content.read(data_keys[path][1]))
+    pprint(blob['tree'])
     template = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -185,5 +186,6 @@ def open_data_files(keyfile, contentsfile):
     data_content = open(contentsfile)
     return data_keys, data_content
 
-# print(generate_page('/DDIA/glossary', data_keys, data_content))
+# data_keys, data_content  = open_data_files("data_keys", "data_contents")
+# print(generate_page('/DDIA', data_keys, data_content))
 # data_content.close()
