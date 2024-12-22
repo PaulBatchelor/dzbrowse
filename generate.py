@@ -57,6 +57,15 @@ def generate_node_data(nodes, connections, path, db, nid):
             val = lookup_name_from_id(db, parent)
         node["parents"].append(val)
 
+    for child in children:
+        nodename = None
+        if child in nodes:
+            nodename = shortname(path, nodes[child])
+        else:
+            nodename = lookup_name_from_id(db, child)
+
+        node["children"].append(nodename)
+
     if nid in nodes:
         node["name"] = shortname(path, nodes[nid])
     else:
@@ -108,8 +117,8 @@ def get_parents(connections, nid):
 
     parents = []
 
-    for left in connections:
-        parents.append(left)
+    for right in connections[nid]:
+        parents.append(right)
 
     return parents
 
