@@ -44,6 +44,19 @@ def generate_node_data(nodes, connections, path, db, nid):
     reference = None
     flashcard = None
 
+    children = get_children(connections, nid)
+    parents = get_parents(connections, nid)
+    node["children"]= []
+    node["parents"]= []
+
+    for parent in parents:
+        val = None
+        if parent in nodes:
+            val = shortname(path, nodes[parent])
+        else:
+            val = lookup_name_from_id(db, parent)
+        node["parents"].append(val)
+
     if nid in nodes:
         node["name"] = shortname(path, nodes[nid])
     else:
@@ -60,11 +73,10 @@ def generate_node_data(nodes, connections, path, db, nid):
     node["nid"] = nid
 
     if reference:
-        node.reference = reference
+        node["reference"] = reference
     
     if flashcard:
-        node.flashcard = flashcard
-
+        node["flashcard"] = flashcard
 
     return node, children
 
@@ -89,6 +101,18 @@ def get_children(connections, nid):
             if right == nid:
                 children.append(left)
     return children
+
+def get_parents(connections, nid):
+    if nid not in connections:
+        return []
+
+    parents = []
+
+    for left in connections:
+        parents.append(left)
+
+    return parents
+
 def childtree(nodes, connections, namespace, nid, db, xnodes):
     tree = []
     tree_nodes = []
