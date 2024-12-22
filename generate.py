@@ -50,10 +50,24 @@ def generate_node_data(nodes, connections, path, db, nid):
             ref['linum'] = row[1]
 
         return ref
+    
+    def get_lines():
+        rows = db.execute(
+            "SELECT lines FROM dz_lines " +
+            f"WHERE node = {nid} LIMIT 1;"
+        )
+
+        lines = None
+        for row in rows:
+            lines = row[0]
+
+        lines = json.loads(lines) if lines else None
+
+        return lines
 
     children = []
     node = {}
-    lines = None
+    lines = get_lines()
     remarks = None
     hyperlink = None
     reference = get_reference()
