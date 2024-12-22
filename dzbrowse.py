@@ -47,6 +47,20 @@ def render_nodetree(nodetree, namespace):
 def is_local_node(node):
     return "/" not in node['name']
 
+
+def path_to_link(curnamespace, path):
+    def localize(path):
+        if "/" not in path:
+            path = "/".join(curnamespace.split("/")[:-1]) + "/" + path
+        return path
+    def mklink(path, name):
+        path_parts = path.split("/")
+        path_plus_key="/".join(path_parts[:-1]) + "#" + path_parts[-1]
+        return f"<a href=\"/dz/{path_plus_key}\">{name}</a>"
+    if isinstance(path, str):
+        return mklink(localize(path), abbreviate_node(curnamespace, path))
+    return mklink(localize(path['name']), abbreviate_node(curnamespace, path['name']))
+
 def render_card(node, namespace):
     html = ""
 
@@ -65,21 +79,22 @@ def render_card(node, namespace):
     html += "</tr>\n"
 
     curnamespace = namespace + "/" + node['name']
+
     def lines(params):
         return ("content", " ".join(params))
 
     def children(params):
         childlinks = []
-        print(curnamespace)
         for p in params:
-            if isinstance(p, str):
-                childlinks.append(abbreviate_node(curnamespace, p))
-            else:
-                childlinks.append(abbreviate_node(curnamespace, p['name']))
+            childlinks.append(path_to_link(curnamespace, p))
         return ("children", ", ".join(childlinks))
 
     def parents(params):
-        return ("parents", ", ".join(params))
+        parentlinks = []
+        for p in params:
+            parentlinks.append(path_to_link(curnamespace, p))
+
+        return ("parents", ", ".join(parentlinks))
 
     def remarks(params):
         return ("remarks", " ".join(params))
