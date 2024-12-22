@@ -201,6 +201,8 @@ def open_data_files(keyfile, contentsfile):
     data_content = open(contentsfile)
     return data_keys, data_content
 
-# data_keys, data_content  = open_data_files("data_keys", "data_contents")
-# print(generate_page('/DDIA', data_keys, data_content))
-# data_content.close()
+# for testing purposes...
+if __name__ == "__main__":
+    data_keys, data_content  = open_data_files("data_keys", "data_contents")
+    print(generate_page('/DDIA', data_keys, data_content))
+    data_content.close()

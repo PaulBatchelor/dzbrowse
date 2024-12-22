@@ -36,12 +36,27 @@ def lookup_name_from_id(db, nid):
     return name
 
 def generate_node_data(nodes, connections, path, db, nid):
+    def get_reference():
+        rows = db.execute(
+            "SELECT filename, linum FROM dz_noderefs " +
+            f"WHERE node = {nid} LIMIT 1;"
+        )
+
+        ref = None
+
+        for row in rows:
+            ref = {}
+            ref['filename'] = row[0]
+            ref['linum'] = row[1]
+
+        return ref
+
     children = []
     node = {}
     lines = None
     remarks = None
     hyperlink = None
-    reference = None
+    reference = get_reference()
     flashcard = None
 
     children = get_children(connections, nid)
