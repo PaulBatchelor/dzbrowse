@@ -6,6 +6,7 @@ import dzbrowse
 import mimetypes
 import signal
 import sys
+import tags
 
 class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -23,7 +24,15 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         '/hello': lambda self: self.send_hello_world(),
         '/api/users': lambda self: self.send_users_data(),
         '/style.css': lambda self: self.load_css(),
+        '/tag': lambda self: self.load_tag(),
     }
+
+    def load_tag(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        parts = self.path.split("/")
+        self.wfile.write("TODO: write tags")
 
     def load_css(self):
         self.send_response(200)
@@ -40,7 +49,6 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
       
         if len(path_segments) > 1 and path_segments[1] == "dz":
             dzpath = "/" + "/".join(path_segments[2:])
-            print(dzpath)
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
