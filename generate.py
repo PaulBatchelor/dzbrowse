@@ -68,7 +68,7 @@ def generate_node_data(nodes, connections, path, db, nid):
     
     def get_hyperlink():
         rows = db.execute(
-            "SELECT lines FROM dz_hyperlinks " +
+            "SELECT hyperlink FROM dz_hyperlinks " +
             f"WHERE node = {nid} LIMIT 1;"
         )
 
