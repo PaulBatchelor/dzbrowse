@@ -2,6 +2,7 @@ import sqlite3
 from pprint import pprint
 import json
 import re
+import sys
 
 def shortname(namespace, name):
     return re.sub("^" + namespace + "/", "", name)
@@ -64,12 +65,24 @@ def generate_node_data(nodes, connections, path, db, nid):
         lines = json.loads(lines) if lines else None
 
         return lines
+    
+    def get_hyperlink():
+        rows = db.execute(
+            "SELECT lines FROM dz_hyperlinks " +
+            f"WHERE node = {nid} LIMIT 1;"
+        )
+
+        hyperlink = None
+        for row in rows:
+            hyperlink = row[0]
+
+        return hyperlink
 
     children = []
     node = {}
     lines = get_lines()
     remarks = None
-    hyperlink = None
+    hyperlink = get_hyperlink()
     reference = get_reference()
     flashcard = None
 
@@ -271,9 +284,9 @@ def generate_page_data(db, h, lookup, namespace, pglist, data_files):
     data_files.write(nspath, obj)
 
 class DataFiles:
-    def __init__(self):
-        self.keys = open("data_keys", "w")
-        self.contents = open("data_contents", "w")
+    def __init__(self, keyfile="data_keys", contentsfile="data_contents"):
+        self.keys = open(keyfile, "w")
+        self.contents = open(contentsfile, "w")
         self.offset = 0
 
     def close(self):
@@ -286,7 +299,7 @@ class DataFiles:
         self.offset += len(data_str)
         self.contents.write(data_str)
 
-def generate(dbpath):
+def generate(dbpath, keyfile="data_keys", contentsfile="data_contents"):
     db = sqlite3.connect(dbpath)
 
     cur = db.cursor()
@@ -310,8 +323,18 @@ def generate(dbpath):
         lookup[name] = idnum
 
 
-    data_files = DataFiles()
+    data_files = DataFiles(keyfile, contentsfile)
     generate_page_data(cur, h, lookup, None, None, data_files)
     data_files.close()
 
-generate("../recurse/a.db")
+# generate("../recurse/a.db")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(f"Usage: {sys.argv[0]} dz_databse.db")
+        exit(1)
+    argv = sys.argv
+    dbfile = argv[1]
+    keyfile = argv[2] if len(argv) >= 3 else "data_keys"
+    contentsfile = argv[3] if len(argv) >= 4 else "data_contents"
+    generate(dbfile, keyfile, contentsfile)
