@@ -78,6 +78,20 @@ def generate_node_data(nodes, connections, path, db, nid):
 
         return hyperlink
 
+    def get_tags():
+        rows = db.execute(
+            "SELECT tag FROM dz_tags " +
+            f"WHERE node = {nid} LIMIT 1;"
+        )
+
+        tags = None
+        for row in rows:
+            if tags is None:
+                tags = []
+            tags.append(row[0])
+
+        return tags
+
     children = []
     node = {}
     lines = get_lines()
@@ -85,6 +99,7 @@ def generate_node_data(nodes, connections, path, db, nid):
     hyperlink = get_hyperlink()
     reference = get_reference()
     flashcard = None
+    tags = get_tags()
 
     children = get_children(connections, nid)
     parents = get_parents(connections, nid)
@@ -128,6 +143,9 @@ def generate_node_data(nodes, connections, path, db, nid):
     
     if flashcard:
         node["flashcard"] = flashcard
+
+    if tags:
+        node["tags"] = tags
 
     return node, children
 

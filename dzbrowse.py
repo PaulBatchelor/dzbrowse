@@ -111,6 +111,9 @@ def render_card(node, namespace):
                 f"<p>front: {" ".join(params['front'])}</p>" +
                 f"<p>back: {" ".join(params['back'])}</p>")
 
+    def tags(params):
+        return ("tags", ", ".join(params))
+
     attributes = {
         "reference": reference,
         "lines": lines,
@@ -119,6 +122,7 @@ def render_card(node, namespace):
         "remarks": remarks,
         "hyperlink": hyperlink,
         "flashcard": flashcard,
+        "tags": tags,
     }
 
     html += "<tr>\n"
