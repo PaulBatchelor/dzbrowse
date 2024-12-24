@@ -7,10 +7,17 @@ import mimetypes
 import signal
 import sys
 import tags
+import re
+import sqlite3
+from pprint import pprint
 
 class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # Initialize the MIME types
+        print(self.dbname)
+        self.db = None
+        if self.dbname:
+            self.db = sqlite3.connect(self.dbname)
         mimetypes.init()
         # Add CSS MIME type if not present
         if '.css' not in mimetypes.types_map:
@@ -32,7 +39,20 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         parts = self.path.split("/")
-        self.wfile.write("TODO: write tags")
+        html = ""
+        db = self.db
+        if db is None:
+            html = "<p>Database not loaded.</p>"
+        elif len(parts) <= 2:
+            cur = db.cursor()
+            html = tags.generate_tag_index(cur)
+            cur.close()
+        else:
+            cur = db.cursor()
+            html = tags.generate_tag_page(cur, parts[-1])
+            cur.close()
+
+        self.wfile.write(html.encode())
 
     def load_css(self):
         self.send_response(200)
@@ -54,6 +74,8 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             html = dzbrowse.generate_page(dzpath, self.data_keys, self.data_content)
             self.wfile.write(html.encode())
+        elif re.match("^/tag/.*", parsed_path.path):
+            self.load_tag()
         elif parsed_path.path in self.routes:
             # Call the corresponding route handler
             self.routes[parsed_path.path](self)
@@ -133,7 +155,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self._server.shutdown()
 
 
-def run_server(port=8000):
+def run_server(port=8000, dbname=None):
     def signal_handler(signal, frame):
         nonlocal running
         print('You pressed Ctrl+C!')
@@ -143,15 +165,24 @@ def run_server(port=8000):
 
     running = True
     """Start the server"""
-    with socketserver.TCPServer(("", port), CustomRequestHandler) as httpd:
-        print(f"Serving at port {port}")
-        print(f"Open http://localhost:{port} in your web browser")
-        httpd.serve_forever()
-        # while running:
-        #     print(running)
-        #     httpd.handle_request()
-        # print("bye")
-        # httpd.server_close()
+    httpd = socketserver.TCPServer(("", port), CustomRequestHandler)
+    print(f"Serving at port {port}")
+    print(f"Open http://localhost:{port} in your web browser")
+
+    httpd.RequestHandlerClass.dbname = dbname
+    # if dbname:
+        #db = sqlite3.connect(dbname)
+        #httpd.RequestHandlerClass.db = db
+    
+    httpd.serve_forever()
+    # while running:
+    #     print(running)
+    #     httpd.handle_request()
+    # print("bye")
+    # httpd.server_close()
 
 if __name__ == "__main__":
-    run_server()
+    dbname = None
+    if len(sys.argv) > 1:
+        dbname = sys.argv[1]
+    run_server(dbname=dbname)

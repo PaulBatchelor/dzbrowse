@@ -13,7 +13,9 @@ def generate_tag_page(db, tag):
     html += [f"<h1>Nodes with tag {tag}</h1>"]
     for row in rows:
         node = row[0]
-        html += [f"<p><a href=\"\">{node}</a></p>"]
+        nodeparts = node.split("/")
+        link = f"/dz/{"/".join(nodeparts[:-1])}#{nodeparts[-1]}"
+        html += [f"<p><a href=\"{link}\">{node}</a></p>"]
 
     html += ["</body>"]
     html += ["</html>"]
@@ -31,7 +33,8 @@ def generate_tag_index(db):
     html += [f"<h1>Tags</h1>"]
     for row in rows:
         tag, count = row
-        html += [f"<p><a href=\"\">{tag} ({count})</a></p>"]
+        link = f"/tag/{tag}"
+        html += [f"<p><a href=\"{link}\">{tag} ({count})</a></p>"]
 
     html += ["</body>"]
     html += ["</html>"]
