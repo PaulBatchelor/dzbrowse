@@ -112,7 +112,10 @@ def render_card(node, namespace):
                 f"<p>back: {" ".join(params['back'])}</p>")
 
     def tags(params):
-        return ("tags", ", ".join(params))
+        taglinks = []
+        for tag in params:
+            taglinks += [f"<a href=\"/tag/{tag}\">{tag}</a>"]
+        return ("tags", ", ".join(taglinks))
 
     attributes = {
         "reference": reference,
