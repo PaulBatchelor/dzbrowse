@@ -9,6 +9,7 @@ import sys
 import tags
 import re
 import sqlite3
+import os
 from pprint import pprint
 
 class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -25,6 +26,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     data_keys, data_content = dzbrowse.open_data_files("data_keys", "data_contents")
+    content_mtime = os.stat("data_contents").st_mtime
     # Dictionary to store our routes
     routes = {
         '/': lambda self: self.send_home_page(),
@@ -72,6 +74,14 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
+
+            cur_content_mtime = os.stat("data_contents").st_mtime
+
+            if cur_content_mtime > self.content_mtime:
+                self.content_mtime = cur_content_mtime
+                self.data_content.close()
+                self.data_keys, self.data_content = dzbrowse.open_data_files("data_keys", "data_contents")
+
             html = dzbrowse.generate_page(dzpath, self.data_keys, self.data_content)
             self.wfile.write(html.encode())
         elif re.match("^/tag/.*", parsed_path.path):
