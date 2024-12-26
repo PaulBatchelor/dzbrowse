@@ -146,6 +146,27 @@ def render_card(node, namespace):
             html += "</td>\n"
             html += "</tr>\n"
 
+    if "comments" in node:
+        html += "<tr>\n"
+        html += "<th scope=\"row\" colspan=2>\n"
+        html += f"Comments\n"
+        html += "</th>\n"
+        html += "</tr>\n"
+        for comment in node["comments"]:
+            html += "<tr>\n"
+            html += "<td>\n"
+            html += f"<p>{comment["day"]} {comment["time"]}</p>\n"
+            html += "</td>\n"
+            html += "<td>\n"
+            html += f"<p>{comment["title"]}"
+            if len(comment["comment"]) > 0:
+                html += ":</p>\n<p>"
+                html += comment["comment"]
+                html += "</p>\n"
+            html += "</p>\n"
+            html += "</td>\n"
+            html += "</tr>\n"
+    
     html += "</tbody>\n"
     html += "</table>\n"
     return html
@@ -172,14 +193,12 @@ def render_url(namespace):
     for segment in namespace.split("/"):
         curpath.append(segment)
         path_link = f"<a href=\"/{"/".join(curpath)}\">{segment}</a>"
-        print(path_link)
         path_segments.append(path_link)
     return " / ".join(path_segments)
 
 def generate_page(path, data_keys, data_content):
     data_content.seek(data_keys[path][0])
     blob = json.loads(data_content.read(data_keys[path][1]))
-    pprint(blob['tree'])
     template = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -217,5 +236,6 @@ def open_data_files(keyfile, contentsfile):
 # for testing purposes...
 if __name__ == "__main__":
     data_keys, data_content  = open_data_files("data_keys", "data_contents")
-    print(generate_page('/leetcode/problems', data_keys, data_content))
+    path = '/DDIA/toc/2_distributed_data'
+    print(generate_page(path, data_keys, data_content))
     data_content.close()
