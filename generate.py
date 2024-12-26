@@ -102,6 +102,44 @@ def generate_node_data(nodes, connections, path, db, nid):
             tags.append(row[0])
 
         return tags
+    
+    def get_comments():
+        if nid not in nodes:
+            return None
+        nodename = nodes[nid]
+        rows = db.execute(
+            "SELECT " +
+            "logs.day, " +
+            "logs.time, " +
+            "logs.title, " +
+            "logs.comment, " +
+            "logtags.logid, " +
+            "substr(logtags.tag,4) as dznode " +
+            "FROM logtags " +
+            "INNER JOIN logs on logs.rowid = logtags.logid " +
+            "WHERE tag LIKE 'dz:%'" +
+            "AND dznode IS '" + nodename + "' " +
+            "ORDER BY day ASC, time ASC" +
+            ";"
+        )
+
+        comments = None
+
+        for row in rows:
+            day, time, title, comment, logid, dznode = row
+            title = re.sub(r"\s*#[\w/_:-]*", "", title)
+            if comments is None:
+                comments = []
+            comments.append({
+                "day": day,
+                "time": time,
+                "title": title,
+                "comment": comment,
+                "logid": logid,
+                "dznode": dznode,
+            })
+
+        return comments
 
     children = []
     node = {}
@@ -114,6 +152,8 @@ def generate_node_data(nodes, connections, path, db, nid):
 
     children = get_children(connections, nid)
     parents = get_parents(connections, nid)
+
+    comments = get_comments()
     node["children"]= []
     node["parents"]= []
 
@@ -168,6 +208,9 @@ def generate_node_data(nodes, connections, path, db, nid):
 
     if tags:
         node["tags"] = tags
+
+    if comments:
+        node["comments"] = comments
 
     return node, children
 

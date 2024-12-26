@@ -160,7 +160,7 @@ def render_card(node, namespace):
             html += "<td>\n"
             html += f"<p>{comment["title"]}"
             if len(comment["comment"]) > 0:
-                html += ":</p>\n<p>"
+                html += "</p>\n<p>"
                 html += comment["comment"]
                 html += "</p>\n"
             html += "</p>\n"
