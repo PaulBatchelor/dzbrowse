@@ -92,7 +92,7 @@ def generate_node_data(nodes, connections, path, db, nid):
     def get_tags():
         rows = db.execute(
             "SELECT tag FROM dz_tags " +
-            f"WHERE node = {nid} LIMIT 1;"
+            f"WHERE node = {nid};"
         )
 
         tags = None
