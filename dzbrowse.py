@@ -53,13 +53,19 @@ def path_to_link(curnamespace, path):
         if "/" not in path:
             path = "/".join(curnamespace.split("/")[:-1]) + "/" + path
         return path
-    def mklink(path, name):
+    def mklink(path, name, remarks=None):
         path_parts = path.split("/")
         path_plus_key="/".join(path_parts[:-1]) + "#" + path_parts[-1]
-        return f"<a href=\"/dz/{path_plus_key}\">{name}</a>"
+        link = f"<a href=\"/dz/{path_plus_key}\">{name}</a>"
+
+        if remarks:
+            link += " ("
+            link += " ".join(remarks)
+            link += ")"
+        return link
     if isinstance(path, str):
         return mklink(localize(path), abbreviate_node(curnamespace, path))
-    return mklink(localize(path['name']), abbreviate_node(curnamespace, path['name']))
+    return mklink(localize(path['name']), abbreviate_node(curnamespace, path['name']), path['remarks'])
 
 def render_card(node, namespace):
     html = ""
@@ -211,5 +217,5 @@ def open_data_files(keyfile, contentsfile):
 # for testing purposes...
 if __name__ == "__main__":
     data_keys, data_content  = open_data_files("data_keys", "data_contents")
-    print(generate_page('/DDIA', data_keys, data_content))
+    print(generate_page('/leetcode/problems', data_keys, data_content))
     data_content.close()

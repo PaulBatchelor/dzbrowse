@@ -36,6 +36,17 @@ def lookup_name_from_id(db, nid):
         name = row[0]
     return name
 
+def get_connection_remarks(db, left, right):
+    rows = db.execute("SELECT remarks FROM " +
+        "dz_connection_remarks " +
+        f"WHERE left == {left} AND " +
+        f"right == {right} LiMIT 1")
+    cr = None
+    for row in rows:
+        cr = json.loads(row[0])
+    return cr
+
+
 def generate_node_data(nodes, connections, path, db, nid):
     def get_reference():
         rows = db.execute(
@@ -51,7 +62,7 @@ def generate_node_data(nodes, connections, path, db, nid):
             ref['linum'] = row[1]
 
         return ref
-    
+
     def get_lines():
         rows = db.execute(
             "SELECT lines FROM dz_lines " +
@@ -65,7 +76,7 @@ def generate_node_data(nodes, connections, path, db, nid):
         lines = json.loads(lines) if lines else None
 
         return lines
-    
+
     def get_hyperlink():
         rows = db.execute(
             "SELECT hyperlink FROM dz_hyperlinks " +
@@ -121,7 +132,18 @@ def generate_node_data(nodes, connections, path, db, nid):
         else:
             nodename = lookup_name_from_id(db, child)
 
-        node["children"].append(nodename)
+        val = nodename
+
+        cr = get_connection_remarks(db, child, nid)
+
+        if cr:
+            val = {
+                "name": nodename,
+                "remarks": cr
+            }
+
+
+        node["children"].append(val)
 
     if nid in nodes:
         node["name"] = shortname(path, nodes[nid])
