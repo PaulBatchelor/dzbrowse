@@ -127,7 +127,7 @@ def generate_node_data(nodes, connections, path, db, nid):
 
         for row in rows:
             day, time, title, comment, logid, dznode = row
-            title = re.sub(r"\s*#[\w/_:-]*", "", title)
+            title = re.sub("\s*#[\w/_.:-]*", "", title)
             if comments is None:
                 comments = []
             comments.append({
