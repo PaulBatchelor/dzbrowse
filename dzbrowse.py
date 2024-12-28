@@ -166,7 +166,7 @@ def render_card(node, namespace):
             html += "</p>\n"
             html += "</td>\n"
             html += "</tr>\n"
-    
+
     html += "</tbody>\n"
     html += "</table>\n"
     return html
