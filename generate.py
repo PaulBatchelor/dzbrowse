@@ -141,6 +141,23 @@ def generate_node_data(nodes, connections, path, db, nid):
             })
 
         return comments
+    
+    def get_file_ranges():
+        rows = db.execute(
+            "SELECT filename, start, end FROM dz_file_ranges " +
+            f"WHERE node == {nid} LIMIT 1"
+        )
+
+        franges = None
+        for row in rows:
+            filename, start, end = row
+            franges = {
+                "filename": filename,
+                "start": int(start),
+                "end": int(end),
+            }
+
+        return franges
 
     children = []
     node = {}
@@ -150,6 +167,7 @@ def generate_node_data(nodes, connections, path, db, nid):
     reference = get_reference()
     flashcard = None
     tags = get_tags()
+    file_ranges = get_file_ranges()
 
     children = get_children(connections, nid)
     parents = get_parents(connections, nid)
@@ -212,6 +230,9 @@ def generate_node_data(nodes, connections, path, db, nid):
 
     if comments:
         node["comments"] = comments
+
+    if file_ranges:
+        node["file_ranges"] = file_ranges
 
     return node, children
 

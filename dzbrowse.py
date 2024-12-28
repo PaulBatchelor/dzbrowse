@@ -123,6 +123,19 @@ def render_card(node, namespace):
             taglinks += [f"<a href=\"/tag/{tag}\">{tag}</a>"]
         return ("tags", ", ".join(taglinks))
 
+    def file_ranges(params):
+        filename = params["filename"]
+        start = params["start"]
+        end = params["end"]
+        linerange = ""
+
+        if start >= 0:
+            linerange = f":{start}"
+            if end >=0:
+                linerange += f"-{end}"
+
+        return ("File Range", filename + linerange)
+
     attributes = {
         "reference": reference,
         "lines": lines,
@@ -132,6 +145,7 @@ def render_card(node, namespace):
         "hyperlink": hyperlink,
         "flashcard": flashcard,
         "tags": tags,
+        "file_ranges": file_ranges,
     }
 
     html += "<tr>\n"
@@ -236,6 +250,6 @@ def open_data_files(keyfile, contentsfile):
 # for testing purposes...
 if __name__ == "__main__":
     data_keys, data_content  = open_data_files("data_keys", "data_contents")
-    path = '/DDIA/toc/2_distributed_data'
+    path = '/codestudy/ripgrep/files/crates/core/main.rs'
     print(generate_page(path, data_keys, data_content))
     data_content.close()
