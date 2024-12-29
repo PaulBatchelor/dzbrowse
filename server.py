@@ -12,6 +12,7 @@ import re
 import sqlite3
 import os
 from pprint import pprint
+import threading
 
 class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -69,7 +70,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         parsed_path = urllib.parse.urlparse(self.path)
 
         path_segments = parsed_path.path.split("/")
-      
+
         if len(path_segments) > 1 and path_segments[1] == "dz":
             dzpath = "/" + "/".join(path_segments[2:])
             self.send_response(200)
@@ -99,7 +100,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        
+
         html = """
         <!DOCTYPE html>
         <html>
@@ -128,14 +129,14 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-        
+
         # Sample user data
         users = [
             {"id": 1, "name": "Alice", "email": "alice@example.com"},
             {"id": 2, "name": "Bob", "email": "bob@example.com"},
             {"id": 3, "name": "Charlie", "email": "charlie@example.com"}
         ]
-        
+
         # Convert to JSON and send
         self.wfile.write(json.dumps(users).encode())
 
@@ -145,18 +146,18 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/api/submit':
             # Get the content length
             content_length = int(self.headers['Content-Length'])
-            
+
             # Read the POST data
             post_data = self.rfile.read(content_length)
-            
+
             # Send a response
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            
+
             # Echo back the received data
             response = {
-                "status": "success", 
+                "status": "success",
                 "received_data": post_data.decode('utf-8')
             }
             self.wfile.write(json.dumps(response).encode())
@@ -166,12 +167,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self._server.shutdown()
 
 
-def run_server(port=8000, dbname=None):
-    def signal_handler(signal, frame):
-        nonlocal running
-        print('You pressed Ctrl+C!')
-        running = False
-
+def run_server(port=8080, dbname=None):
     # signal.signal(signal.SIGINT, signal_handler)
 
     running = True
@@ -184,13 +180,17 @@ def run_server(port=8000, dbname=None):
     # if dbname:
         #db = sqlite3.connect(dbname)
         #httpd.RequestHandlerClass.db = db
-    
-    httpd.serve_forever()
-    # while running:
-    #     print(running)
-    #     httpd.handle_request()
-    # print("bye")
-    # httpd.server_close()
+
+    def serve():
+        httpd.serve_forever()
+    thread = threading.Thread(target=serve)
+
+    thread.start()
+
+    try:
+        thread.join()
+    except KeyboardInterrupt:
+        print("closing...")
 
 if __name__ == "__main__":
     dbname = None
