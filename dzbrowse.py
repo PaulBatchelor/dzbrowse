@@ -48,14 +48,20 @@ def is_local_node(node):
     return "/" not in node['name']
 
 
-def path_to_link(curnamespace, path):
+def path_to_link(curnamespace, path, subgraph=False):
     def localize(path):
         if "/" not in path:
             path = "/".join(curnamespace.split("/")[:-1]) + "/" + path
         return path
     def mklink(path, name, remarks=None):
         path_parts = path.split("/")
-        path_plus_key="/".join(path_parts[:-1]) + "#" + path_parts[-1]
+
+        sep = "#"
+
+        if subgraph:
+            sep = "/"
+
+        path_plus_key="/".join(path_parts[:-1]) + sep + path_parts[-1]
         link = f"<a href=\"/dz/{path_plus_key}\">{name}</a>"
 
         if remarks:
@@ -136,6 +142,12 @@ def render_card(node, namespace):
 
         return ("File Range", filename + linerange)
 
+    def subgraph(params):
+        return (
+            "subgraph",
+            path_to_link(namespace, curnamespace, subgraph=True)
+        )
+
     attributes = {
         "reference": reference,
         "lines": lines,
@@ -146,6 +158,7 @@ def render_card(node, namespace):
         "flashcard": flashcard,
         "tags": tags,
         "file_ranges": file_ranges,
+        "subgraph": subgraph,
     }
 
     html += "<tr>\n"

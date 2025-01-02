@@ -159,6 +159,25 @@ def generate_node_data(nodes, connections, path, db, nid):
 
         return franges
 
+    def check_for_subgraph():
+        if nid not in nodes:
+            return None
+        nodename = nodes[nid]
+        rows = db.execute(
+            "SELECT count(*) > 0 FROM dz_nodes " +
+            f"WHERE name LIKE '{nodename + "/%"}'" 
+        )
+
+        is_subgraph = None
+
+
+        for row in rows:
+            if row[0] == 1:
+                is_subgraph = True
+
+        return is_subgraph
+
+
     children = []
     node = {}
     lines = get_lines()
@@ -168,6 +187,7 @@ def generate_node_data(nodes, connections, path, db, nid):
     flashcard = None
     tags = get_tags()
     file_ranges = get_file_ranges()
+    is_subgraph = check_for_subgraph()
 
     children = get_children(connections, nid)
     parents = get_parents(connections, nid)
@@ -234,6 +254,8 @@ def generate_node_data(nodes, connections, path, db, nid):
     if file_ranges:
         node["file_ranges"] = file_ranges
 
+    if is_subgraph:
+        node["subgraph"] = bool(is_subgraph)
     return node, children
 
 def get_top_nodes(nodes, connections):
