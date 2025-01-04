@@ -187,9 +187,11 @@ def render_card(node, namespace):
             html += "<td>\n"
             html += f"<p>{comment["title"]}"
             if len(comment["comment"]) > 0:
-                html += "</p>\n<p>"
-                html += comment["comment"]
                 html += "</p>\n"
+                for cmt in comment["comment"]:
+                    html += "<p>"
+                    html += cmt
+                    html += "</p>\n"
             html += "</p>\n"
             html += "</td>\n"
             html += "</tr>\n"
