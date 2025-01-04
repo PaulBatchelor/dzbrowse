@@ -143,6 +143,41 @@ def generate_node_data(nodes, connections, path, db, nid):
 
         return comments
 
+    def get_file_range_code(franges):
+        if not franges:
+            return None
+        exists = db.execute("SELECT count(tbl_name) FROM sqlite_master WHERE tbl_name is 'dz_textfiles' LIMIT 1");
+        if not bool(exists.fetchone()[0]):
+            return None
+
+        code = None
+
+        filename = franges["filename"]
+        start = franges["start"]
+        end = franges["end"]
+
+        if start <= 0 and end <= 0:
+            return None
+
+        if end <=0:
+            end = start
+
+
+        lines = db.execute(" ".join((
+            "SELECT data from dz_textfiles",
+            "WHERE",
+            f"linum >= {start} AND linum <= {end}",
+            f"AND filename is '{filename}'"
+        )))
+
+
+        for line in lines:
+            if not code:
+                code = []
+            code.append(line[0])
+
+        return code
+
     def get_file_ranges():
         rows = db.execute(
             "SELECT filename, start, end FROM dz_file_ranges " +
@@ -157,6 +192,11 @@ def generate_node_data(nodes, connections, path, db, nid):
                 "start": int(start),
                 "end": int(end),
             }
+
+        code = get_file_range_code(franges)
+
+        if code and franges:
+            franges["code"] = code
 
         return franges
 

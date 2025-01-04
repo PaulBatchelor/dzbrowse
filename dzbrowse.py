@@ -140,7 +140,19 @@ def render_card(node, namespace):
             if end >=0:
                 linerange += f"-{end}"
 
-        return ("File Range", filename + linerange)
+        out = filename + linerange
+
+        if "code" in params:
+            snippet = ""
+            snippet += "<details>\n"
+            snippet += f"<summary>{filename + linerange}</summary>\n"
+            snippet += "<pre><code>"
+            snippet += "\n".join(params["code"])
+            snippet += "</code></pre>"
+            snippet += "</details>\n"
+            out = snippet
+
+        return ("File Range", out)
 
     def subgraph(params):
         return (
