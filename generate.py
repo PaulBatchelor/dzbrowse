@@ -103,7 +103,7 @@ def generate_node_data(nodes, connections, path, db, nid):
             tags.append(row[0])
 
         return tags
-    
+
     def get_comments():
         if nid not in nodes:
             return None
@@ -141,7 +141,7 @@ def generate_node_data(nodes, connections, path, db, nid):
             })
 
         return comments
-    
+
     def get_file_ranges():
         rows = db.execute(
             "SELECT filename, start, end FROM dz_file_ranges " +
@@ -165,7 +165,7 @@ def generate_node_data(nodes, connections, path, db, nid):
         nodename = nodes[nid]
         rows = db.execute(
             "SELECT count(*) > 0 FROM dz_nodes " +
-            f"WHERE name LIKE '{nodename + "/%"}'" 
+            f"WHERE name LIKE '{nodename + "/%"}'"
         )
 
         is_subgraph = None
@@ -234,14 +234,14 @@ def generate_node_data(nodes, connections, path, db, nid):
     if remarks:
         node["remarks"] = remarks
 
-    if hyperlink: 
+    if hyperlink:
         node["hyperlink"] = hyperlink
 
     node["nid"] = nid
 
     if reference:
         node["reference"] = reference
-    
+
     if flashcard:
         node["flashcard"] = flashcard
 
@@ -269,7 +269,7 @@ def get_top_nodes(nodes, connections):
     for nid in nodes:
         if nid not in connections or any_local_nodes(connections[nid]) == False:
             top_nodes.append(nid)
-    
+
     return top_nodes
 
 def get_children(connections, nid):
@@ -312,7 +312,7 @@ def childtree(nodes, connections, namespace, nid, db, xnodes):
 
     for child in children:
         append_tree(tree_nodes, nodes, connections, namespace, child, db, xnodes)
-    
+
     if len(tree_nodes) == 0:
         tree = tree[0]
     else:
@@ -363,7 +363,7 @@ def node_object(db, path, nodes, subgraphs):
         if nid not in traversed:
             children_nids = traverse_node(nid)
             if len(children_nids) > 0:
-                traverse_children(children_nids)                
+                traverse_children(children_nids)
 
 
     tree, xnodes = generate_tree(nodes, connections, path, db)
@@ -401,7 +401,7 @@ def generate_page_data(db, h, lookup, namespace, pglist, data_files):
             fullpath = name
             if len(namespace) > 0:
                 fullpath = "/".join(namespace) + "/" + name
-            
+
             nid = lookup[fullpath]
             nodes[nid] = fullpath
 
