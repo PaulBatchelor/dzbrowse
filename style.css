@@ -41,3 +41,12 @@ tfoot td {
   font-weight: bold;
 }
 
+pre code {
+color:#111;
+background:aliceblue;
+border: 1px solid #999;
+border-radius:4px;
+display: block;
+padding: 10px;
+overflow: auto;
+}
