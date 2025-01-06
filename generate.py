@@ -475,6 +475,7 @@ def generate(dbpath, keyfile="data_keys", contentsfile="data_contents"):
     rows = cur.execute(" ".join([
         "SELECT name, id, position FROM dz_nodes",
         "ORDER BY name ASC",
+        # "ORDER BY position ASC, name ASC",
     ]))
 
     h = {}

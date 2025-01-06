@@ -8,8 +8,9 @@ def parse(filename):
     lines = None
     with open(filename) as fp:
         lines = fp.readlines()
-    p = re.compile(r"^@([^ ]*) (.*)")
+    p = re.compile(r"^@([^ ]*)(\s+(.*))?")
     blocks = []
+    p_ex = re.compile(r"^#! (.*)")
     blkpos = -1
     for line in lines:
         m = p.match(line)
@@ -17,12 +18,18 @@ def parse(filename):
             blkpos += 1
             newblock = {
                 "name": m.group(1),
-                "title": m.group(2),
+                "title": m.group(2) or "",
                 "lines": [],
+                "ex": [],
             }
             blocks.append(newblock)
             continue
         if blkpos >= 0 and len(line) > 1:
+            m = p_ex.match(line)
+            if m:
+                cmd = m.group(1)
+                blocks[blkpos]["ex"].append(cmd)
+                continue
             blocks[blkpos]["lines"].append(line[:-1])
 
     return blocks
@@ -67,6 +74,12 @@ def generate_sql(blocks):
     pos = 0
     category = ""
 
+    def sqltag(tag):
+        s = "INSERT INTO logtags(logid, tag) "
+        s += f"VALUES ((SELECT max(rowid) from logs), '{tag}');\n"
+        return s
+
+    pnode = None
     for block in blocks:
         r = p_day.match(block["name"])
         if r:
@@ -85,6 +98,8 @@ def generate_sql(blocks):
             continue
 
         if p_time.match(block["name"]):
+            if curday is None:
+                raise Exception("No day selected")
             sql += "INSERT INTO logs(day, time, title, comment, position, category) "
             sql += "VALUES ("
             sql += f"'{curday}', "
@@ -96,9 +111,23 @@ def generate_sql(blocks):
             sql += ");\n"
             pos += 1
 
+
             for tag in extract_tags(block["title"]):
-                sql += "INSERT INTO logtags(logid, tag) "
-                sql += f"VALUES ((SELECT max(rowid) from logs), '{tag}');\n"
+                sql += sqltag(tag)
+
+            for cmd in block["ex"]:
+                args = cmd.split()
+                if args[0] == "dz":
+                    if args[1][0] == "$" and pnode:
+                        tail = ""
+                        if len(args[1]) > 1:
+                            tail = args[1][1:]
+                        sql += sqltag("dz:" + pnode + tail)
+                    else: 
+                        sql += sqltag("dz:" + args[1])
+                        pnode = args[1]
+
+                continue
 
             continue
     sql += "COMMIT;\n";
