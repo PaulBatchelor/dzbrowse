@@ -118,7 +118,10 @@ def generate_sql(blocks):
             for cmd in block["ex"]:
                 args = cmd.split()
                 if args[0] == "dz":
-                    if args[1][0] == "$" and pnode:
+                    if args[1][0] == "$":
+                        if pnode is None:
+                            raise Exception("no previous node selected")
+
                         tail = ""
                         if len(args[1]) > 1:
                             tail = args[1][1:]
