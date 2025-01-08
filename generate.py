@@ -105,6 +105,10 @@ def generate_node_data(nodes, connections, path, db, nid):
         return tags
 
     def get_comments():
+        exists = db.execute("SELECT count(tbl_name) FROM sqlite_master WHERE tbl_name is 'logtags' LIMIT 1");
+
+        if not bool(exists.fetchone()[0]):
+            return None
         if nid not in nodes:
             return None
         nodename = nodes[nid]
