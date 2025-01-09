@@ -21,6 +21,7 @@ do
     then
         dagzet $LINE
     else
+        echo $LINE
         dagzet $LINE | sqlite3 $DBFILE
     fi
 
