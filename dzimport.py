@@ -2,6 +2,37 @@
 import sys
 import subprocess
 import sqlite3
+import os
+
+def read_dzfiles(dzfilename, cur, curpath):
+    with open(dzfilename) as fp:
+        for line in fp:
+            args = ["dagzet"]
+            fileargs = line[:-1].split()
+
+            if os.path.isdir(fileargs[0]):
+                common = os.path.commonpath((fileargs[0], curpath))
+                newcurpath = common + fileargs[0].removeprefix(common)
+                read_dzfiles(newcurpath + "/dzfiles.txt", cur, newcurpath)
+                continue
+
+            for i in range(len(fileargs)):
+                if os.path.isfile(fileargs[i]):
+                    continue
+
+                # file might be a local path, in which case append prefix
+                fileargs[i] = curpath + "/" + fileargs[i]
+                if not os.path.isfile(fileargs[i]):
+                    raise Exception(f"Could not find: {fileargs[i]}")
+            args.extend(fileargs)
+
+            if cur:
+                print(" ".join(args[1:]))
+                rc = subprocess.run(args, capture_output=True)
+                cur.executescript(rc.stdout.decode())
+            else:
+                subprocess.run(args)
+
 
 def run(args):
     dzfiles = "dzfiles.txt"
@@ -15,6 +46,7 @@ def run(args):
         dbfile = args[2]
         con = sqlite3.connect(dbfile)
         cur = con.cursor()
+
 
     if cur:
         cur.executescript("\n".join([
@@ -36,18 +68,8 @@ def run(args):
         "DROP TABLE IF EXISTS dz_noderefs;",
     ]))
 
-
-    with open(dzfiles) as fp:
-        for line in fp:
-            args = ["dagzet"]
-            args.extend(line[:-1].split())
-            if cur:
-                print(line[:-1])
-                rc = subprocess.run(args, capture_output=True)
-                #print(rc.stdout.decode())
-                cur.executescript(rc.stdout.decode())
-            else:
-                subprocess.run(args)
+    curpath=""
+    read_dzfiles(dzfiles, cur, curpath)
 
 if __name__ == "__main__":
     run(sys.argv)
