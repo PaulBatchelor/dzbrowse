@@ -222,11 +222,27 @@ def generate_node_data(nodes, connections, path, db, nid):
 
         return is_subgraph
 
+    def get_remarks():
+        rows = db.execute(
+            "SELECT remarks FROM dz_remarks " +
+            f"WHERE node == {nid} LIMIT 1"
+        )
+
+        remarks = None
+        for row in rows:
+            remarks = row[0]
+
+
+        if remarks:
+            remarks = json.loads(remarks)
+
+        return remarks
+
 
     children = []
     node = {}
     lines = get_lines()
-    remarks = None
+    remarks = get_remarks()
     hyperlink = get_hyperlink()
     reference = get_reference()
     flashcard = None
