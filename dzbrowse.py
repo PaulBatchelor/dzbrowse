@@ -172,10 +172,18 @@ def render_card(node, namespace):
         "file_ranges": file_ranges,
         "subgraph": subgraph,
     }
-
     html += "<tr>\n"
+    html += "<th>\n"
+    html += "path\n"
+    html += "</th>\n"
+    html += "<td>\n"
+    html += f"{curnamespace}\n"
+    html += "</td>\n"
+    html += "</tr>\n"
+
     for attr, atfun in attributes.items():
         if attr in node:
+            html += "<tr>\n"
             label, content = atfun(node[attr])
             html += "<th>\n"
             html += label + "\n"
