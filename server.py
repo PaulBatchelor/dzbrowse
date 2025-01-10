@@ -17,7 +17,6 @@ import threading
 class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         # Initialize the MIME types
-        print(self.dbname)
         self.db = None
         if self.dbname:
             self.db = sqlite3.connect(self.dbname)
