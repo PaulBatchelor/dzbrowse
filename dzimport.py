@@ -66,6 +66,7 @@ def run(args):
         "DROP TABLE IF EXISTS dz_pages;",
         "DROP TABLE IF EXISTS dz_todo;",
         "DROP TABLE IF EXISTS dz_noderefs;",
+        "DROP TABLE IF EXISTS dz_attributes;",
     ]))
 
     curpath=""
