@@ -384,11 +384,46 @@ def append_tree(tree, nodes, connections, namespace, nid, db, xnodes):
     newtree = childtree(nodes, connections, namespace, nid, db, xnodes)
     tree.append(newtree)
 
+def is_ordered(namespace, db):
+    rows = db.execute("\n".join((
+        "SELECT count(*) FROM dz_attributes",
+        "INNER JOIN dz_nodes on dz_nodes.id = dz_attributes.node",
+        "WHERE dz_attributes.key is 'ol'",
+        f"AND name is '{namespace}' LIMIT 1"
+
+    )))
+
+    return bool(rows.fetchone()[0])
+
+def ordered_nodes(top_nodes, db):
+    ordered = top_nodes
+    def find_smallest(node):
+        rows = db.execute("\n".join((
+            "SELECT ifnull(min(rowid), 0) FROM dz_connections",
+            f"WHERE left is {node}"
+        )))
+        return rows.fetchone()[0]
+
+    # for each node, find the smallest ranked (right) connection
+    # the idea being that usually "co $ .." is the first connection
+    # called for any particular nodes, and node connections do get
+    # created in the order they appear in dagzet files
+
+    ordered = []
+    for node in top_nodes:
+        rank = find_smallest(node)
+        ordered.append((rank, node))
+
+    return map(lambda x: x[1], sorted(ordered))
+
 def generate_tree(nodes, connections, namespace, db):
     tree = []
     xnodes = {}
 
     top_nodes = get_top_nodes(nodes, connections)
+
+    if is_ordered(namespace, db):
+        top_nodes = ordered_nodes(top_nodes, db)
 
     for top in top_nodes:
         append_tree(tree, nodes, connections, namespace, top, db, xnodes)
