@@ -11,7 +11,7 @@ def run(filepath, filename):
         sql += "VALUES("
         sql += f"'{filename}', "
         sql += f"{i + 1}, "
-        sql += f"'{re.sub("'","''", line[:-1])}'"
+        sql += "'" + re.sub("'","''", line[:-1]) + "'"
         sql += ");\n"
         #print(i + 1, filename, line)
         continue
