@@ -210,7 +210,7 @@ def generate_node_data(nodes, connections, path, db, nid):
         nodename = nodes[nid]
         rows = db.execute(
             "SELECT count(*) > 0 FROM dz_nodes " +
-            f"WHERE name LIKE '{nodename + "/%"}'"
+            f"WHERE name LIKE '{nodename + '/%'}'"
         )
 
         is_subgraph = None

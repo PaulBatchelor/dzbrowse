@@ -121,8 +121,8 @@ def render_card(node, namespace):
 
     def flashcard(params):
         return ("flashcard",
-                f"<p>front: {" ".join(params['front'])}</p>" +
-                f"<p>back: {" ".join(params['back'])}</p>")
+                f"<p>front: {' '.join(params['front'])}</p>" +
+                f"<p>back: {' '.join(params['back'])}</p>")
 
     def tags(params):
         taglinks = []
@@ -203,10 +203,10 @@ def render_card(node, namespace):
         for comment in node["comments"]:
             html += "<tr>\n"
             html += "<td>\n"
-            html += f"<p>{comment["day"]} {comment["time"]}</p>\n"
+            html += f"<p>{comment['day']} {comment['time']}</p>\n"
             html += "</td>\n"
             html += "<td>\n"
-            html += f"<p>{comment["title"]}"
+            html += f"<p>{comment['title']}"
             if len(comment["comment"]) > 0:
                 html += "</p>\n"
                 for cmt in comment["comment"]:
@@ -242,7 +242,7 @@ def render_url(namespace):
     curpath = []
     for segment in namespace.split("/"):
         curpath.append(segment)
-        path_link = f"<a href=\"/{"/".join(curpath)}\">{segment}</a>"
+        path_link = f"<a href=\"/{'/'.join(curpath)}\">{segment}</a>"
         path_segments.append(path_link)
     return " / ".join(path_segments)
 

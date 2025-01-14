@@ -14,7 +14,7 @@ def generate_tag_page(db, tag):
     for row in rows:
         node = row[0]
         nodeparts = node.split("/")
-        link = f"/dz/{"/".join(nodeparts[:-1])}#{nodeparts[-1]}"
+        link = f"/dz/{'/'.join(nodeparts[:-1])}#{nodeparts[-1]}"
         html += [f"<p><a href=\"{link}\">{node}</a></p>"]
 
     html += ["</body>"]
