@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from pprint import pprint
 import json
 import re
@@ -284,7 +285,8 @@ def open_data_files(keyfile, contentsfile):
 
 # for testing purposes...
 if __name__ == "__main__":
+    import sys
     data_keys, data_content  = open_data_files("data_keys", "data_contents")
-    path = '/codestudy/ripgrep/files/crates/core/main.rs'
+    path = sys.argv[1]
     print(generate_page(path, data_keys, data_content))
     data_content.close()
