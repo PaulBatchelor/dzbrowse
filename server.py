@@ -193,6 +193,9 @@ def run_server(port=8080, dbname=None):
 
 if __name__ == "__main__":
     dbname = None
+    port = 8080
     if len(sys.argv) > 1:
         dbname = sys.argv[1]
-    run_server(dbname=dbname)
+    if len(sys.argv) > 2:
+        port = int(sys.argv[2])
+    run_server(dbname=dbname, port=port)
