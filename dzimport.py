@@ -6,10 +6,33 @@ import os
 
 def read_dzfiles(dzfilename, cur, curpath):
     with open(dzfilename) as fp:
+        linebuf = []
+        linebuf_mode = False
         for line in fp:
-            args = ["dagzet"]
-            fileargs = line[:-1].split()
 
+            if len(line) == 0:
+                continue
+
+            if line[0] == '+':
+                linebuf_mode = True
+                linebuf = []
+                continue
+
+
+            fileargs = None
+
+            if linebuf_mode:
+                if line[0] == '.':
+                    linebuf_mode = False
+                    fileargs = " ".join(linebuf).split()
+                    linebuf = []
+                else:
+                    linebuf.append(line[:-1])
+                    continue
+            else:
+                fileargs = line[:-1].split()
+
+            args = ["dagzet"]
             if os.path.isdir(fileargs[0]):
                 common = os.path.commonpath((fileargs[0], curpath))
                 newcurpath = common + fileargs[0].removeprefix(common)
