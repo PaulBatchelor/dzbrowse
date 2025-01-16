@@ -31,8 +31,6 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
     # Dictionary to store our routes
     routes = {
         '/': lambda self: self.send_home_page(),
-        '/hello': lambda self: self.send_hello_world(),
-        '/api/users': lambda self: self.send_users_data(),
         '/style.css': lambda self: self.load_css(),
         '/tag': lambda self: self.load_tag(),
     }
@@ -103,41 +101,13 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         html = """
         <!DOCTYPE html>
         <html>
-        <head><title>Custom Python HTTP Server</title></head>
+        <head><title>DZBrowse</title></head>
         <body>
-            <h1>Welcome to the Custom Python HTTP Server</h1>
-            <p>Available routes:</p>
-            <ul>
-                <li>/hello - Get a greeting</li>
-                <li>/api/users - Get user data</li>
-            </ul>
+            <a href="/dz">dz</a>. <a href="/tag">tags</a>.
         </body>
         </html>
         """
         self.wfile.write(html.encode())
-
-    def send_hello_world(self):
-        """Handle requests to /hello"""
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b"Hello, World!")
-
-    def send_users_data(self):
-        """Handle requests to /api/users"""
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-
-        # Sample user data
-        users = [
-            {"id": 1, "name": "Alice", "email": "alice@example.com"},
-            {"id": 2, "name": "Bob", "email": "bob@example.com"},
-            {"id": 3, "name": "Charlie", "email": "charlie@example.com"}
-        ]
-
-        # Convert to JSON and send
-        self.wfile.write(json.dumps(users).encode())
 
     def do_POST(self):
         """Handle POST requests"""

@@ -1,5 +1,9 @@
 DZBROWSE_PATH=dzbrowse
 
+# fail a bit more loudly
+set -e
+set -o pipefail
+
 ./$DZBROWSE_PATH/dzimport.py dzfiles.txt a.db
 
 if [ -f logfiles.txt ]
@@ -9,7 +13,6 @@ fi
 
 if [ -f codefiles.txt ]
 then
-    CODEPATH="."
     if [ "$#" -gt 0 ]
     then
         CODEPATH=$1
