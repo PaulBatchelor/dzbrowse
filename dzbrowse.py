@@ -2,6 +2,7 @@
 from pprint import pprint
 import json
 import re
+import html as htmllib
 
 def render_subgraph(subgraphs, namespace=""):
     html = ""
@@ -148,7 +149,7 @@ def render_card(node, namespace):
             snippet += "<details>\n"
             snippet += f"<summary>{filename + linerange}</summary>\n"
             snippet += "<pre><code>"
-            snippet += "\n".join(params["code"])
+            snippet += htmllib.escape("\n".join(params["code"]))
             snippet += "</code></pre>"
             snippet += "</details>\n"
             out = snippet
