@@ -1,0 +1,5 @@
+DZPATH=$(dirname $BASH_SOURCE)
+alias dzimport=$DZPATH/dzimport.py
+alias generate=$DZPATH/gen.sh
+alias server=$DZPATH/server.py
+export DZBROWSE_PATH=$DZPATH

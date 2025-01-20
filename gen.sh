@@ -1,14 +1,17 @@
-DZBROWSE_PATH=dzbrowse
+if [ -z $DZBROWSE_PATH ]
+then
+    DZBROWSE_PATH=./dzbrowse
+fi
 
 # fail a bit more loudly
 set -e
 set -o pipefail
 
-./$DZBROWSE_PATH/dzimport.py dzfiles.txt a.db
+$DZBROWSE_PATH/dzimport.py dzfiles.txt a.db
 
 if [ -f logfiles.txt ]
 then
-    ./$DZBROWSE_PATH/batchlogs.py logfiles.txt
+    $DZBROWSE_PATH/batchlogs.py logfiles.txt
 fi
 
 if [ -f codefiles.txt ]
@@ -23,10 +26,10 @@ then
         CODEPATH=$GIT_TOP/code/$DZPATH
     fi
 
-    ./dzbrowse/batchcode.py $CODEPATH | sqlite3 a.db
+    $DZBROWSE_PATH/batchcode.py $CODEPATH | sqlite3 a.db
 fi
 
-./$DZBROWSE_PATH/generate.py a.db
+$DZBROWSE_PATH/generate.py a.db
 
 if [ ! -f style.css ]
 then
