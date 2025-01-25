@@ -52,9 +52,13 @@ def read_dzfiles(dzfilename, cur, curpath):
             if cur:
                 print(" ".join(args[1:]))
                 rc = subprocess.run(args, capture_output=True)
+                if rc.returncode != 0:
+                    print(rc.stderr.decode())
+                    raise Exception("oops")
                 cur.executescript(rc.stdout.decode())
             else:
-                subprocess.run(args)
+                rc = subprocess.run(args)
+                rc.check_returncode()
 
 
 def run(args):
