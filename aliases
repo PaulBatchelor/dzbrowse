@@ -2,4 +2,5 @@ DZPATH=$(dirname $BASH_SOURCE)
 alias dzimport=$DZPATH/dzimport.py
 alias generate=$DZPATH/gen.sh
 alias server=$DZPATH/server.py
+alias gendb="dzimport dzfiles.txt a.db"
 export DZBROWSE_PATH=$DZPATH
